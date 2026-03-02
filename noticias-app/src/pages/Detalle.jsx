@@ -15,10 +15,12 @@ function Detalle() {
   const [item, setItem] = useState(null)
 
   useEffect(() => {
-    fetch(APIS[tipo]).then(r => r.json()).then(data => {
-      const encontrado = data.find(i => i.id == id)
-      setItem(encontrado)
-    })
+    fetch(APIS[tipo])
+      .then(r => r.json())
+      .then(data => {
+        const encontrado = data.find(i => String(i.id) === String(id))
+        setItem(encontrado)
+      })
   }, [tipo, id])
 
   if (!item) return <div className="contenido">Cargando...</div>
@@ -33,11 +35,28 @@ function Detalle() {
       <button className="detalle-volver" onClick={() => navigate(-1)}>
         <ArrowLeft size={16} /> Volver
       </button>
-      {item.imagen && <img src={item.imagen} alt={item.titulo} className="detalle-imagen" />}
+
+      {item.imagen && (
+        <img
+          src={item.imagen}
+          alt={item.titulo}
+          className="detalle-imagen"
+        />
+      )}
+
       <div className="detalle-body">
         <h1>{item.titulo}</h1>
-        <small className="card-fecha"><Calendar size={12} /> {item.fecha}</small>
-        {item.editado && <small className="card-editado"> Editado el {item.fechaEdicion}</small>}
+
+        <small className="card-fecha">
+          <Calendar size={12} /> {item.fecha}
+        </small>
+
+        {item.editado && (
+          <small className="card-editado">
+            {' '}Editado el {item.fechaEdicion}
+          </small>
+        )}
+
         <p>{item.contenido}</p>
       </div>
     </motion.div>

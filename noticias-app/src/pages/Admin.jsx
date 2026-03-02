@@ -15,14 +15,20 @@ function Admin() {
   const [editando, setEditando] = useState(null)
   const [preview, setPreview] = useState(null)
 
-  useEffect(() => { cargar() }, [seccion])
+  useEffect(() => {
+    const cargar = () => {
+      fetch(seccion.api)
+        .then(r => r.json())
+        .then(data => {
+          setItems(data)
+          setPreview(null)
+          setEditando(null)
+          setForm({ titulo: '', contenido: '', imagen: '' })
+        })
+    }
 
-  const cargar = () => {
-    fetch(seccion.api).then(r => r.json()).then(setItems)
-    setPreview(null)
-    setEditando(null)
-    setForm({ titulo: '', contenido: '', imagen: '' })
-  }
+    cargar()
+  }, [seccion])
 
   const handleImagen = (e) => {
     const file = e.target.files[0]
@@ -33,7 +39,10 @@ function Admin() {
   }
 
   const guardar = async () => {
-    if (!form.titulo || !form.contenido) return alert('Título y contenido son obligatorios')
+    if (!form.titulo || !form.contenido) {
+      alert('Título y contenido son obligatorios')
+      return
+    }
 
     const hoy = new Date().toLocaleDateString('es-ES')
 
@@ -67,8 +76,11 @@ function Admin() {
 
   const eliminar = async (id) => {
     if (!window.confirm('¿Seguro que quieres eliminar esto?')) return
+
     await fetch(`${seccion.api}/${id}`, { method: 'DELETE' })
-    cargar()
+
+    const actualizados = await fetch(seccion.api).then(r => r.json())
+    setItems(actualizados)
   }
 
   return (
@@ -84,7 +96,7 @@ function Admin() {
               className={seccion.key === s.key ? 'tab activo' : 'tab'}
               onClick={() => setSeccion(s)}
             >
-              <Icono size={14} style={{marginRight: 6, verticalAlign: 'middle'}} />
+              <Icono size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
               {s.label}
             </button>
           )
@@ -93,37 +105,58 @@ function Admin() {
 
       <div className="admin-form">
         <h2>{editando ? 'Editando publicación' : 'Nueva publicación'}</h2>
+
         <input
           placeholder="Título"
           value={form.titulo}
           onChange={e => setForm({ ...form, titulo: e.target.value })}
         />
+
         <textarea
           placeholder="Contenido"
           value={form.contenido}
           onChange={e => setForm({ ...form, contenido: e.target.value })}
         />
+
         <label className="upload-label">
           <Upload size={16} />
           Subir imagen
           <input type="file" accept="image/*" onChange={handleImagen} />
         </label>
+
         {form.imagen && (
           <div style={{ position: 'relative', marginBottom: 12 }}>
-            <img src={form.imagen} alt="preview" className="imagen-preview" style={{ marginBottom: 0 }} />
+            <img
+              src={form.imagen}
+              alt="preview"
+              className="imagen-preview"
+              style={{ marginBottom: 0 }}
+            />
             <button
               onClick={() => setForm({ ...form, imagen: '' })}
               style={{
-                position: 'absolute', top: 8, right: 8,
-                background: 'rgba(0,0,0,0.6)', color: 'white',
-                border: 'none', borderRadius: '50%',
-                width: 30, height: 30, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 16, fontWeight: 'bold'
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                background: 'rgba(0,0,0,0.6)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: 30,
+                height: 30,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 16,
+                fontWeight: 'bold'
               }}
-            >✕</button>
+            >
+              ✕
+            </button>
           </div>
         )}
+
         <button className="btn-guardar" onClick={guardar}>
           {editando ? 'Actualizar' : 'Publicar'}
         </button>
@@ -131,7 +164,10 @@ function Admin() {
 
       {preview && (
         <div className="preview-seccion">
-          <h3><CheckCircle size={14} style={{marginRight: 6, verticalAlign: 'middle'}} />Así quedó publicado:</h3>
+          <h3>
+            <CheckCircle size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+            Así quedó publicado:
+          </h3>
           <Card {...preview} />
         </div>
       )}
