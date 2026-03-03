@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { Newspaper, Megaphone, Lightbulb, Upload, CheckCircle } from 'lucide-react'
 import Card from '../components/Card'
 
+const BASE_URL = "https://flatcms-production-ed81.up.railway.app"
+
 const SECCIONES = [
-  { key: 'noticias', label: 'Noticias', icono: Newspaper, api: 'http://localhost:3001/api/noticias' },
-  { key: 'anuncios', label: 'Anuncios', icono: Megaphone, api: 'http://localhost:3001/api/anuncios' },
-  { key: 'curiosos', label: 'Datos Curiosos', icono: Lightbulb, api: 'http://localhost:3001/api/curiosos' },
+  { key: 'noticias', label: 'Noticias', icono: Newspaper, api: `${BASE_URL}/api/noticias` },
+  { key: 'anuncios', label: 'Anuncios', icono: Megaphone, api: `${BASE_URL}/api/anuncios` },
+  { key: 'curiosos', label: 'Datos Curiosos', icono: Lightbulb, api: `${BASE_URL}/api/curiosos` },
 ]
 
 function Admin() {
@@ -25,6 +27,7 @@ function Admin() {
           setEditando(null)
           setForm({ titulo: '', contenido: '', imagen: '' })
         })
+        .catch(err => console.error("Error cargando datos:", err))
     }
 
     cargar()
